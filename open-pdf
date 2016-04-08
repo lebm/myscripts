@@ -1,0 +1,38 @@
+#!/bin/bash
+#
+# A quick and dirty script to create a unencrypted version of a PDF.
+# It uses pdftk
+# IMPORTANT: It does not crack the PDF password. You must know the PDF passwd beforehand.
+#
+# Bravo - ledbrv@gmail.com
+
+function usage {
+    echo USAGE:
+    echo $0 \<passwd\> \<pdf\> 
+    echo
+    echo "    " passwd - PDF password
+    echo "    " pdf"   "   - Encrypted PDF filename
+    echo
+    echo An opened PDF will be created with \".opened.pdf\" extension
+    exit 1
+}
+
+function parmmissing  { echo; echo "Wrong number of parameters";   echo; usage; }
+function fnotfound    { echo; echo "PDF file $1 nao found ";       echo; usage; }
+function outputexists { echo; echo "PDF file $OUT already exists"; echo; usage; }
+
+[[ $# -eq 2 ]]  || parmmissing
+
+PASSWORD=$1
+PDF=$2
+
+[[ -f "$PDF" ]] || fnotfound "$PDF"
+
+D=$(dirname  "$PDF")
+N=$(basename "$PDF" .pdf)
+
+OUT="${D}/${N}.opened.pdf"
+
+[[ -f "$OUT" ]] && outputexists "$OUT"
+
+pdftk "$PDF" input_pw $PASSWORD output "$OUT"
